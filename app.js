@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const mysql = require("mysql");
 const session = require("express-session");
 const flash = require("express-flash");
+const Joi = require("joi");
 
 const app = express();
 const PORT = process.env.PORT || 9000;
@@ -90,7 +91,11 @@ function checkForEmail(email) {
     });
   });
 }
-
+const schema = Joi.object({
+  email: Joi.string().email().required(),
+  username: Joi.string().alphanum().min(3).required(),
+  password: Joi.string().min(4).required(),
+});
 //routes
 app.get("/", checkNotAuthenticated, (req, res) => {
   res.render("welcome");
@@ -103,6 +108,11 @@ app.get("/register", checkNotAuthenticated, (req, res) => {
 });
 app.post("/register", checkNotAuthenticated, async (req, res) => {
   try {
+    const value = await schema.validateAsync({
+      email: req.body.email,
+      username: req.body.username,
+      password: req.body.password,
+    });
     const exists1 = await checkForUsername(req.body.username);
     const exists2 = await checkForEmail(req.body.email);
     if (!exists1 && !exists2) {
@@ -126,6 +136,12 @@ app.post("/register", checkNotAuthenticated, async (req, res) => {
       res.redirect("/register");
     }
   } catch (e) {
+    if (e.isJoi === true) {
+      req.flash(
+        "exist",
+        `Please provide valid credentials : ${e.details[0].message}`
+      );
+    }
     console.log(e);
     res.redirect("/register");
   }
