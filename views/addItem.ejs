@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Item</title>
+</head>
+
+<body>
+    <div class="main">
+        <form method="post" action="/addItem">
+            <div>
+                <label>Name of the item:</label>
+                <input type="text" name="name" placeholder="Name of the item" required>
+            </div>
+            <div>
+                <label>Description of the item:</label>
+                <input type="text" name="description" placeholder="Description" required>
+            </div>
+            <div>
+                <label>Quantity available:</label>
+                <input type="number" name="quantity" placeholder="Quantity" required>
+            </div>
+            <div>
+                <label>Price (in Rupees):</label>
+                <input type="number" name="price" placeholder="Price" required>
+            </div>
+            <button type="submit" class="btn btn-info">SUBMIT</button>
+        </form>
+    </div>
+
+</body>
+
+</html>

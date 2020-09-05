@@ -5,6 +5,8 @@ const mysql = require("mysql");
 const session = require("express-session");
 const flash = require("express-flash");
 const Joi = require("joi");
+const multer = require("multer");
+const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 9000;
@@ -33,6 +35,7 @@ db.connect((err) => {
 
 //middlewares
 app.set("view engine", "ejs");
+app.use(express.static("./public"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(flash());
@@ -91,6 +94,35 @@ function checkForEmail(email) {
     });
   });
 }
+const storage = multer.diskStorage({
+  destination: "./public/uploads/",
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 1000000 },
+  fileFilter: function (req, file, cb) {
+    checkFileType(file, cb);
+  },
+}).single("myImage");
+
+function checkFileType(file, cb) {
+  const filetypes = /jpeg|jpg|png|gif/;
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = filetypes.test(file.mimetype);
+
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb("Error: Images Only!");
+  }
+}
+
 const schema = Joi.object({
   email: Joi.string().email().required(),
   username: Joi.string().alphanum().min(3).required(),
@@ -190,7 +222,60 @@ app.get("/buyer/home", checkAuthenticated, (req, res) => {
 app.get("/seller/home", checkAuthenticated, (req, res) => {
   res.render("homeSeller");
 });
+app.get("/addItem", checkAuthenticated, (req, res) => {
+  res.render("addItem");
+});
+app.post("/addItem", checkAuthenticated, (req, res) => {
+  const item = {
+    name: req.body.name,
+    description: req.body.description,
+    quantity: req.body.quantity,
+    price: req.body.price,
+    soldBy: req.session.user.username,
+  };
+  const sql = "INSERT INTO items SET ?";
+  db.query(sql, item, (err, result) => {
+    if (err) throw err;
+  });
+  //successfully added row
 
+  //to get the id of last added row
+  const sql1 = "SELECT id FROM items ORDER BY id DESC LIMIT 1";
+  db.query(sql1, (err, result) => {
+    if (err) throw err;
+    res.redirect(`/addimg/${result[0].id}`);
+  });
+});
+app.get("/addimg/:id", checkAuthenticated, (req, res) => {
+  res.render("imageItemUpload", { id: req.params.id });
+});
+
+app.post("/addimg/:id", checkAuthenticated, (req, res) => {
+  upload(req, res, (err) => {
+    if (err) {
+      res.render(`imageItemUpload`, { msg: err, id: req.params.id });
+    } else {
+      if (req.file == undefined) {
+        res.render(`imageItemUpload`, {
+          msg: "Error: No File Selected!",
+          id: req.params.id,
+        });
+      } else {
+        const sql = "UPDATE items SET image=? WHERE id=? AND soldBy=?";
+        db.query(
+          sql,
+          [req.file.filename, req.params.id, req.session.user.username],
+          (err, result) => {
+            if (err) {
+              throw err;
+            }
+            res.redirect("/seller/home");
+          }
+        );
+      }
+    }
+  });
+});
 app.listen(PORT, () => {
   console.log(`Server listening at ${PORT}`);
 });

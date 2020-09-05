@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <title>Item Image Upload</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Upload Item Image</h1>
+        <p>Item id: <span id="item-id"><%= id %></span></p>
+        <%= typeof msg != 'undefined' ? msg : '' %>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="file-field input-field">
+                <div class="btn grey">
+                    <span>Image</span>
+                    <input name="myImage" type="file">
+                </div>
+                <div class="file-path-wrapper">
+                    <input class="file-path validate" type="text">
+                </div>
+            </div>
+            <button type="submit" class="btn">Submit</button>
+        </form>
+        <br>
+    </div>
+    <a href="/seller/home">Go to home page</a>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+</body>
+
+</html>
