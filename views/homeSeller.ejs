@@ -5,6 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <style>
+        .items {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .item {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid black;
+        }
+
+        .item>div {
+            padding: 10px;
+        }
+
+        .item-image {
+            border: 1px solid violet;
+            width: 30%;
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .item-content {
+            border: 1px solid blue;
+            width: 70%;
+        }
+    </style>
 </head>
 
 <body>
@@ -13,6 +46,54 @@
         <button type="submit" id="log-out">Log Out</button>
     </form>
     <a href="/addItem"><button type="button">Add an item</button></a>
+    <div class="items">
+
+    </div>
+    <script>
+        function getItemsOfSeller() {
+            fetch('/seller/items')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    displayItems(data);
+                })
+        }
+        let titles = ['name', 'description', 'price', 'quantity']
+        let titleNames = ['Name', 'Description', 'Price', 'Quantity']
+        function displayItems(data) {
+            let itemsDiv = document.querySelector('.items')
+            for (let i = 0; i < data.length; i++) {
+                let itemDiv = document.createElement('div')
+                itemDiv.className = 'item'
+                let imgDiv = document.createElement('div')
+                let a = document.createElement('a')
+                a.setAttribute('href', `/addimg/${data[i].id}`)
+                let img = document.createElement('img')
+                img.className = 'item-image'
+                img.src = `/uploads/${data[i].image}`
+                a.appendChild(img)
+                imgDiv.appendChild(a)
+                itemDiv.appendChild(imgDiv)
+                let contentDiv = document.createElement('div')
+                contentDiv.className = 'item-content'
+                for (let j = 0; j < titles.length; j++) {
+                    let p = document.createElement('p')
+                    let title = titles[j]
+                    p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
+                    contentDiv.appendChild(p)
+                }
+                let updateButton = document.createElement('a')
+                updateButton.setAttribute('href', `/seller/update/${data[i].id}`)
+                let button = document.createElement('button')
+                button.innerHTML = 'UPDATE ITEM'
+                updateButton.appendChild(button)
+                contentDiv.appendChild(updateButton)
+                itemDiv.appendChild(contentDiv)
+                itemsDiv.appendChild(itemDiv)
+            }
+        }
+        getItemsOfSeller()
+    </script>
 </body>
 
 </html>

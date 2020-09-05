@@ -178,7 +178,7 @@ app.post("/register", checkNotAuthenticated, async (req, res) => {
     res.redirect("/register");
   }
 });
-app.post("/login", checkNotAuthenticated, (req, res) => {
+app.post("/login", checkNotAuthenticated, async (req, res) => {
   try {
     const sql = "SELECT * FROM users WHERE email=?";
     db.query(sql, [req.body.email], async (err, rows) => {
@@ -247,7 +247,16 @@ app.post("/addItem", checkAuthenticated, (req, res) => {
   });
 });
 app.get("/addimg/:id", checkAuthenticated, (req, res) => {
-  res.render("imageItemUpload", { id: req.params.id });
+  //should render only for the user who added the item
+  const sql = "SELECT * FROM items WHERE id=? AND soldBy=?";
+  db.query(sql, [req.params.id, req.session.user.username], (err, result) => {
+    if (err) throw err;
+    if (result.length !== 0) {
+      res.render("imageItemUpload", { id: req.params.id });
+    } else {
+      res.redirect("/seller/home");
+    }
+  });
 });
 
 app.post("/addimg/:id", checkAuthenticated, (req, res) => {
@@ -256,6 +265,7 @@ app.post("/addimg/:id", checkAuthenticated, (req, res) => {
       res.render(`imageItemUpload`, { msg: err, id: req.params.id });
     } else {
       if (req.file == undefined) {
+        //try using flash here
         res.render(`imageItemUpload`, {
           msg: "Error: No File Selected!",
           id: req.params.id,
@@ -274,6 +284,40 @@ app.post("/addimg/:id", checkAuthenticated, (req, res) => {
         );
       }
     }
+  });
+});
+
+app.get("/seller/items", checkAuthenticated, (req, res) => {
+  const sql = "SELECT * FROM items WHERE soldBy=?";
+  db.query(sql, [req.session.user.username], (err, result) => {
+    if (err) throw err;
+    res.send(result);
+  });
+});
+app.get("/seller/update/:id", checkAuthenticated, (req, res) => {
+  //update the item which is created only by the logged in user
+  const sql = "SELECT * FROM items WHERE id=? AND soldBy=?";
+  db.query(sql, [req.params.id, req.session.user.username], (err, result) => {
+    if (err) throw err;
+    if (result.length !== 0) {
+      res.render("updateItems", { id: req.params.id });
+    } else {
+      res.redirect("/seller/home");
+    }
+  });
+});
+app.post("/seller/update/:id", checkAuthenticated, (req, res) => {
+  const sql = `UPDATE items SET ? WHERE id=${req.params.id}`;
+  db.query(sql, req.body, (err, result) => {
+    if (err) throw err;
+  });
+  res.redirect("/seller/home");
+});
+app.get("/seller/item/:id", checkAuthenticated, (req, res) => {
+  const sql = "SELECT * FROM items WHERE id=?";
+  db.query(sql, [req.params.id], (err, result) => {
+    if (err) throw err;
+    res.send(result);
   });
 });
 app.listen(PORT, () => {

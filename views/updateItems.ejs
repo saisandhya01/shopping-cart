@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Item</title>
+</head>
+
+<body>
+    <h1>Welcome to update form ,Item id: <span id="item-id"><%= id %></span></h1>
+    <form method="post">
+        <div>
+            <label>Name of the product:</label>
+            <input type="text" name="name" id="name">
+        </div>
+        <div>
+            <label>Description of the product:</label>
+            <input type="text" name="description" id="description">
+        </div>
+        <div>
+            <label>Quantity:</label>
+            <input type="number" name="quantity" id="quantity">
+        </div>
+        <div>
+            <label>Price (in Rupees): </label>
+            <input type="number" name="price" id="price">
+        </div>
+        <button type="submit">Update Details</button>
+    </form>
+    <script>
+        let titles = ['name', 'description', 'quantity', 'price']
+        let itemId = document.getElementById('item-id').innerHTML
+        function getValuesOfItem(itemId) {
+            fetch(`/seller/item/${itemId}`)
+                .then(response => response.json())
+                .then(data => {
+                    setValuesToInput(data[0])
+                })
+        }
+
+        getValuesOfItem(itemId)
+        function setValuesToInput(object) {
+            for (let i = 0; i < titles.length; i++) {
+                let input = document.getElementById(`${titles[i]}`)
+                input.value = object[titles[i]]
+            }
+        }
+    </script>
+</body>
+
+</html>
