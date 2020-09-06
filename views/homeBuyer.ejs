@@ -5,6 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <style>
+        .items {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .item {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid black;
+        }
+
+        .item>div {
+            padding: 10px;
+        }
+
+        .item-image {
+            border: 1px solid violet;
+            width: 30%;
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .item-content {
+            border: 1px solid blue;
+            width: 70%;
+        }
+    </style>
 </head>
 
 <body>
@@ -12,7 +45,100 @@
     <form action="/logout" method="POST">
         <button type="submit" id="log-out">Log Out</button>
     </form>
+    <a href="/buyer/showCart"><button type="button">CART</button></a>
+    <p>Your recent purchases:</p>
+    <div class="purchases">
 
+    </div>
+    <p>Shop Items:</p>
+    <div class="items">
+    </div>
+    <script>
+        function getShoppingItems() {
+            fetch('/buyer/items')
+                .then(response => response.json())
+                .then(data => {
+                    displayShoppingItems(data);
+                })
+        }
+        let titles = ['name', 'description', 'price', 'quantity', 'soldBy']
+        let titleNames = ['Name', 'Description', 'Price', 'Quantity', 'Sold By']
+        let cartItems = []
+        function getCartItems() {
+            fetch('/buyer/cart')
+                .then(response => response.json())
+                .then(data => {
+                    cartItems = data
+                })
+        }
+        getCartItems()
+        function displayShoppingItems(data) {
+            let itemsDiv = document.querySelector('.items')
+            for (let i = 0; i < data.length; i++) {
+                let itemDiv = document.createElement('div')
+                itemDiv.className = 'item'
+                let imgDiv = document.createElement('div')
+                let img = document.createElement('img')
+                img.className = 'item-image'
+                img.src = `/uploads/${data[i].image}`
+                imgDiv.appendChild(img)
+                itemDiv.appendChild(imgDiv)
+                let contentDiv = document.createElement('div')
+                contentDiv.className = 'item-content'
+                for (let j = 0; j < titles.length; j++) {
+                    let p = document.createElement('p')
+                    let title = titles[j]
+                    p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
+                    contentDiv.appendChild(p)
+                }
+                //order Now and addToCart button
+                let orderButton = document.createElement('button')
+                orderButton.innerHTML = 'ORDER NOW'
+                orderButton.onclick = () => {
+                    orderItem(data[i].id)
+                }
+                contentDiv.appendChild(orderButton)
+                let addToCart = document.createElement('button')
+                addToCart.id = `add-cart-${data[i].id}`
+                //check if it is already added to user's cart
+                if (cartItems.includes(data[i].id)) {
+                    addToCart.disabled = true
+                    addToCart.innerHTML = 'ADDED TO CART'
+                }
+                else {
+                    addToCart.innerHTML = 'ADD TO CART'
+                    addToCart.onclick = () => {
+                        addCartItem(data[i].id)
+                    }
+                }
+                contentDiv.appendChild(addToCart)
+                itemDiv.appendChild(contentDiv)
+                itemsDiv.appendChild(itemDiv)
+
+            }
+        }
+        getShoppingItems()
+        function orderItem(itemId) {
+            console.log(`Order selected item no ${itemId}`)
+            //make the corresponding order button disabled
+            //send id to server to be added to database
+        }
+        function addCartItem(itemId) {
+            let button = document.getElementById(`add-cart-${itemId}`)
+            button.innerHTML = 'ADDED TO CART'
+            button.disabled = true
+            cartItems.push(itemId)
+            const itemDetails = {
+                cart: cartItems
+            }
+            var xhr = new window.XMLHttpRequest();
+            xhr.open('POST', '/buyer/addToCart', true)
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+            xhr.send(JSON.stringify(itemDetails));
+
+        }
+
+    </script>
 </body>
 
 </html>

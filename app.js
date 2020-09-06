@@ -160,6 +160,20 @@ app.post("/register", checkNotAuthenticated, async (req, res) => {
         if (err) throw err;
         res.redirect("/login");
       });
+      const userTypeUser = {
+        username: req.body.username,
+      };
+      if (req.body.usertype === "buyer") {
+        const sql1 = "INSERT INTO buyers SET ?";
+        db.query(sql1, userTypeUser, (err, result) => {
+          if (err) throw err;
+        });
+      } else {
+        const sql1 = "INSERT INTO sellers SET ?";
+        db.query(sql1, userTypeUser, (err, result) => {
+          if (err) throw err;
+        });
+      }
     } else {
       req.flash(
         "exist",
@@ -295,7 +309,7 @@ app.get("/seller/items", checkAuthenticated, (req, res) => {
   });
 });
 app.get("/seller/update/:id", checkAuthenticated, (req, res) => {
-  //update the item which is created only by the logged in user
+  //update the item which is added only by the logged in user
   const sql = "SELECT * FROM items WHERE id=? AND soldBy=?";
   db.query(sql, [req.params.id, req.session.user.username], (err, result) => {
     if (err) throw err;
@@ -319,6 +333,43 @@ app.get("/seller/item/:id", checkAuthenticated, (req, res) => {
     if (err) throw err;
     res.send(result);
   });
+});
+app.get("/buyer/items", checkAuthenticated, (req, res) => {
+  const sql = "SELECT * FROM items";
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+    res.send(result);
+  });
+});
+app.get("/buyer/item/:id", checkAuthenticated, (req, res) => {
+  const sql = "SELECT * FROM items WHERE id=?";
+  db.query(sql, [req.params.id], (err, result) => {
+    if (err) throw err;
+    res.send(result);
+  });
+});
+app.get("/buyer/cart", checkAuthenticated, (req, res) => {
+  const sql = "SELECT cart FROM buyers WHERE username=?";
+  db.query(sql, [req.session.user.username], (err, result) => {
+    if (err) throw err;
+    if (result[0].cart === "") {
+      res.send([]);
+    } else {
+      res.send(JSON.parse(result[0].cart));
+    }
+  });
+});
+app.post("/buyer/addToCart", checkAuthenticated, (req, res) => {
+  const itemDetails = req.body;
+  const stringifiedItem = JSON.stringify(itemDetails.cart);
+  const sql = "UPDATE buyers SET cart=? WHERE username=?";
+  db.query(sql, [stringifiedItem, req.session.user.username], (err, result) => {
+    if (err) throw err;
+    console.log("Added to cart", result);
+  });
+});
+app.get("/buyer/showCart", checkAuthenticated, (req, res) => {
+  res.render("buyerCart");
 });
 app.listen(PORT, () => {
   console.log(`Server listening at ${PORT}`);

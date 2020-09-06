@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart</title>
+    <style>
+        .items {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .item {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid black;
+        }
+
+        .item>div {
+            padding: 10px;
+        }
+
+        .item-image {
+            border: 1px solid violet;
+            width: 30%;
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .item-content {
+            border: 1px solid blue;
+            width: 70%;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>This is your cart</h3>
+    <div class="items">
+
+    </div>
+    <script>
+        function getCart() {
+            fetch('/buyer/cart')
+                .then(response => response.json())
+                .then(data => {
+                    getCartItems(data)
+                });
+        }
+        cartItems = [] //array of objects of cart items
+        function getCartItems(data) {
+            for (let i = 0; i < data.length; i++) {
+                fetch(`/buyer/item/${data[i]}`)
+                    .then(response => response.json())
+                    .then(content => {
+                        cartItems.push(content[0])
+                        if (cartItems.length === data.length) {
+                            displayCartItems(cartItems)
+                        }
+                    })
+            }
+        }
+        let titles = ['name', 'description', 'price', 'quantity']
+        let titleNames = ['Name', 'Description', 'Price', 'Quantity']
+
+        function displayCartItems(data) {
+            let itemsDiv = document.querySelector('.items')
+            for (let i = 0; i < data.length; i++) {
+                let itemDiv = document.createElement('div')
+                itemDiv.className = 'item'
+                let imgDiv = document.createElement('div')
+                let img = document.createElement('img')
+                img.className = 'item-image'
+                img.src = `/uploads/${data[i].image}`
+                imgDiv.appendChild(img)
+                itemDiv.appendChild(imgDiv)
+                let contentDiv = document.createElement('div')
+                contentDiv.className = 'item-content'
+                for (let j = 0; j < titles.length; j++) {
+                    let p = document.createElement('p')
+                    let title = titles[j]
+                    p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
+                    contentDiv.appendChild(p)
+                }
+                let button = document.createElement('button')
+                button.id = `item-${data[i].id}`
+                button.innerHTML = 'ORDER NOW'
+                contentDiv.appendChild(button)
+                itemDiv.appendChild(contentDiv)
+                itemsDiv.appendChild(itemDiv)
+
+            }
+        }
+        getCart()
+    </script>
+</body>
+
+</html>
