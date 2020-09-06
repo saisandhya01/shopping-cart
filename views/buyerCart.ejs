@@ -71,6 +71,7 @@
 
         function displayCartItems(data, cart) {
             let itemsDiv = document.querySelector('.items')
+            itemsDiv.innerHTML = ""
             for (let i = 0; i < data.length; i++) {
                 let itemDiv = document.createElement('div')
                 itemDiv.className = 'item'
@@ -128,8 +129,29 @@
             }
         }
         getCart()
+        function removeItemFromCart(itemId) {
+            let index = cartItems.findIndex(item => item.id == itemId)
+            cartItems.splice(index, 1)
+            const itemDetails = {
+                cart: cartItems
+            }
+            var xhr = new window.XMLHttpRequest();
+            xhr.open('POST', '/buyer/addToCart', true)
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+            xhr.send(JSON.stringify(itemDetails));
+
+        }
         function orderItem(itemId, quantity) {
-            console.log(itemId, quantity)
+            document.getElementById(`item-${itemId}`).innerHTML = 'Ordered'
+            const itemDetails = {
+                id: itemId,
+                quantity: quantity
+            }
+            var xhr = new window.XMLHttpRequest();
+            xhr.open('POST', `/buyer/order`, true)
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+            xhr.send(JSON.stringify(itemDetails));
+            removeItemFromCart(itemId);
         }
     </script>
 </body>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Orders made</title>
     <style>
         .items {
             display: flex;
@@ -41,39 +41,48 @@
 </head>
 
 <body>
-    <h1>This is home page for seller</h1>
-    <form action="/logout" method="POST">
-        <button type="submit" id="log-out">Log Out</button>
-    </form>
-    <a href="/addItem"><button type="button">Add an item</button></a>
-    <a href="/seller/orders"><button>Orders by customers</button></a>
+    <h3>Orders made by customers</h3>
     <div class="items">
 
     </div>
     <script>
-        function getItemsOfSeller() {
-            fetch('/seller/items')
+        function getOrders() {
+            fetch('/seller/order/list')
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
-                    displayItems(data);
+                    console.log(data)
+                    getDetailsOfOrder(data)
                 })
         }
-        let titles = ['name', 'description', 'price', 'quantity']
-        let titleNames = ['Name', 'Description', 'Price', 'Quantity']
-        function displayItems(data) {
+        let orderItems = []
+        function getDetailsOfOrder(data) {
+            for (let i = 0; i < data.length; i++) {
+                fetch(`/seller/item/${data[i].id}`)
+                    .then(response => response.json())
+                    .then(content => {
+                        data[i]['name'] = content[0]['name']
+                        data[i]['price'] = content[0]['price']
+                        data[i]['image'] = content[0]['image']
+                        orderItems.push(data[i])
+                        if (data.length === orderItems.length) {
+                            displayOrderItems(orderItems)
+                        }
+                    })
+            }
+
+        }
+        let titles = ['name', 'buyerName', 'buyerEmail', 'price', 'quantity', 'date']
+        let titleNames = ['Name of the Product', 'Customer Name', 'Customer Email', 'Price of the Product', 'Quantity', 'Date Purchased']
+        function displayOrderItems(data) {
             let itemsDiv = document.querySelector('.items')
             for (let i = 0; i < data.length; i++) {
                 let itemDiv = document.createElement('div')
                 itemDiv.className = 'item'
                 let imgDiv = document.createElement('div')
-                let a = document.createElement('a')
-                a.setAttribute('href', `/addimg/${data[i].id}`)
                 let img = document.createElement('img')
                 img.className = 'item-image'
                 img.src = `/uploads/${data[i].image}`
-                a.appendChild(img)
-                imgDiv.appendChild(a)
+                imgDiv.appendChild(img)
                 itemDiv.appendChild(imgDiv)
                 let contentDiv = document.createElement('div')
                 contentDiv.className = 'item-content'
@@ -83,17 +92,12 @@
                     p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
                     contentDiv.appendChild(p)
                 }
-                let updateButton = document.createElement('a')
-                updateButton.setAttribute('href', `/seller/update/${data[i].id}`)
-                let button = document.createElement('button')
-                button.innerHTML = 'UPDATE ITEM'
-                updateButton.appendChild(button)
-                contentDiv.appendChild(updateButton)
                 itemDiv.appendChild(contentDiv)
                 itemsDiv.appendChild(itemDiv)
             }
         }
-        getItemsOfSeller()
+
+        getOrders()
     </script>
 </body>
 

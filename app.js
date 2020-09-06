@@ -334,6 +334,20 @@ app.get("/seller/item/:id", checkAuthenticated, (req, res) => {
     res.send(result);
   });
 });
+app.get("/seller/orders", checkAuthenticated, (req, res) => {
+  res.render("sellerOrders");
+});
+app.get("/seller/order/list", checkAuthenticated, (req, res) => {
+  const sql = "SELECT orders FROM sellers WHERE username=?";
+  db.query(sql, [req.session.user.username], (err, result) => {
+    if (err) throw err;
+    if (result[0].orders === "") {
+      res.send([]);
+    } else {
+      res.send(result[0].orders);
+    }
+  });
+});
 app.get("/buyer/items", checkAuthenticated, (req, res) => {
   const sql = "SELECT * FROM items";
   db.query(sql, (err, result) => {
@@ -365,7 +379,7 @@ app.post("/buyer/addToCart", checkAuthenticated, (req, res) => {
   const sql = "UPDATE buyers SET cart=? WHERE username=?";
   db.query(sql, [stringifiedItem, req.session.user.username], (err, result) => {
     if (err) throw err;
-    console.log("Added to cart", result);
+    //console.log("Added to cart", result);
   });
 });
 app.get("/buyer/showCart", checkAuthenticated, (req, res) => {
@@ -374,6 +388,18 @@ app.get("/buyer/showCart", checkAuthenticated, (req, res) => {
 app.get("/buyer/orders", checkAuthenticated, (req, res) => {
   res.render("buyerOrders");
 });
+app.get("/buyer/order/list", checkAuthenticated, (req, res) => {
+  const sql = "SELECT purchases FROM buyers WHERE username=?";
+  db.query(sql, [req.session.user.username], (err, result) => {
+    if (err) throw err;
+    if (result[0].purchases === "") {
+      res.send([]);
+    } else {
+      res.send(JSON.parse(result[0].purchases));
+    }
+  });
+});
+
 app.post("/buyer/order", checkAuthenticated, (req, res) => {
   const id = req.body.id;
   const quantity = req.body.quantity;
@@ -429,11 +455,12 @@ app.post("/buyer/order", checkAuthenticated, (req, res) => {
       const SQL2 = "UPDATE sellers SET orders=? WHERE username=?";
       db.query(SQL2, [JSON.stringify(array), sellerName], (err, result1) => {
         if (err) throw err;
-        console.log(result1);
+        //console.log(result1);
       });
     });
   });
 });
+
 app.listen(PORT, () => {
   console.log(`Server listening at ${PORT}`);
 });
