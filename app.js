@@ -371,6 +371,69 @@ app.post("/buyer/addToCart", checkAuthenticated, (req, res) => {
 app.get("/buyer/showCart", checkAuthenticated, (req, res) => {
   res.render("buyerCart");
 });
+app.get("/buyer/orders", checkAuthenticated, (req, res) => {
+  res.render("buyerOrders");
+});
+app.post("/buyer/order", checkAuthenticated, (req, res) => {
+  const id = req.body.id;
+  const quantity = req.body.quantity;
+  //reduce the quantity of the item by 1
+  const sql = `UPDATE items SET quantity=quantity-${quantity} WHERE id=${id}`;
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+  });
+  //add item to buyer's purchases
+  const object = {
+    id: id,
+    quantity: quantity,
+    date: new Date(),
+    buyerName: req.session.user.username,
+    buyerEmail: req.session.user.email,
+  };
+  let array = [];
+  const sql1 = "SELECT purchases FROM buyers WHERE username=?";
+  db.query(sql1, [req.session.user.username], (err, result) => {
+    if (err) throw err;
+    if (result[0].purchases === "") {
+      array.push(object);
+    } else {
+      array = JSON.parse(result[0].purchases);
+      array.push(object);
+    }
+    const sql2 = "UPDATE buyers SET purchases=? WHERE username=?";
+    db.query(
+      sql2,
+      [JSON.stringify(array), req.session.user.username],
+      (err, result1) => {
+        if (err) throw err;
+        //console.log(result1);
+      }
+    );
+  });
+
+  //add item to seller database
+  const SQL = `SELECT soldBy FROM items WHERE id=${id}`;
+  db.query(SQL, (err, result) => {
+    if (err) throw err;
+    let sellerName = result[0].soldBy;
+    let array = [];
+    const SQL1 = "SELECT orders FROM sellers WHERE username=?";
+    db.query(SQL1, [sellerName], (err, result) => {
+      if (err) throw err;
+      if (result[0].orders === "") {
+        array.push(object);
+      } else {
+        array = JSON.parse(result[0].orders);
+        array.push(object);
+      }
+      const SQL2 = "UPDATE sellers SET orders=? WHERE username=?";
+      db.query(SQL2, [JSON.stringify(array), sellerName], (err, result1) => {
+        if (err) throw err;
+        console.log(result1);
+      });
+    });
+  });
+});
 app.listen(PORT, () => {
   console.log(`Server listening at ${PORT}`);
 });

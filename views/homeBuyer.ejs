@@ -46,6 +46,7 @@
         <button type="submit" id="log-out">Log Out</button>
     </form>
     <a href="/buyer/showCart"><button type="button">CART</button></a>
+    <a href="/buyer/orders"><button type="button">YOUR ORDERS</button></a>
     <p>Your recent purchases:</p>
     <div class="purchases">
 
@@ -69,6 +70,7 @@
                 .then(response => response.json())
                 .then(data => {
                     cartItems = data
+                    console.log(cartItems)
                 })
         }
         getCartItems()
@@ -85,32 +87,36 @@
                 itemDiv.appendChild(imgDiv)
                 let contentDiv = document.createElement('div')
                 contentDiv.className = 'item-content'
+                let quantityIsZero = false;
                 for (let j = 0; j < titles.length; j++) {
                     let p = document.createElement('p')
                     let title = titles[j]
+                    if (title === 'quantity' && data[i][title] === 0) {
+                        quantityIsZero = true
+                    }
                     p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
                     contentDiv.appendChild(p)
                 }
                 //order Now and addToCart button
                 let orderButton = document.createElement('button')
-                orderButton.innerHTML = 'ORDER NOW'
-                orderButton.onclick = () => {
-                    orderItem(data[i].id)
+                if (quantityIsZero) {
+                    orderButton.innerHTML = 'NO STOCK'
+                }
+                else {
+                    orderButton.innerHTML = 'ORDER NOW'
+                    orderButton.id = `order-item-${data[i].id}`
+                    orderButton.onclick = () => {
+                        orderItem(data[i].id)
+                    }
                 }
                 contentDiv.appendChild(orderButton)
                 let addToCart = document.createElement('button')
                 addToCart.id = `add-cart-${data[i].id}`
-                //check if it is already added to user's cart
-                if (cartItems.includes(data[i].id)) {
-                    addToCart.disabled = true
-                    addToCart.innerHTML = 'ADDED TO CART'
+                addToCart.innerHTML = 'ADD TO CART'
+                addToCart.onclick = () => {
+                    addCartItem(data[i].id)
                 }
-                else {
-                    addToCart.innerHTML = 'ADD TO CART'
-                    addToCart.onclick = () => {
-                        addCartItem(data[i].id)
-                    }
-                }
+
                 contentDiv.appendChild(addToCart)
                 itemDiv.appendChild(contentDiv)
                 itemsDiv.appendChild(itemDiv)
@@ -119,15 +125,35 @@
         }
         getShoppingItems()
         function orderItem(itemId) {
-            console.log(`Order selected item no ${itemId}`)
-            //make the corresponding order button disabled
+            //add order confirmation or 'item ordered message though alerts!'
+            document.getElementById(`order-item-${itemId}`).innerHTML = 'ORDERED'
             //send id to server to be added to database
+            const itemDetails = {
+                id: itemId,
+                quantity: 1
+            }
+            var xhr = new window.XMLHttpRequest();
+            xhr.open('POST', `/buyer/order`, true)
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+            xhr.send(JSON.stringify(itemDetails));
+
+
         }
         function addCartItem(itemId) {
-            let button = document.getElementById(`add-cart-${itemId}`)
-            button.innerHTML = 'ADDED TO CART'
-            button.disabled = true
-            cartItems.push(itemId)
+            alert('Item successfully added to cart')
+            let item = cartItems.find(item => {
+                if (item.id == itemId) {
+                    return item.quantity
+                }
+            })
+            if (item === undefined) {
+                cartItems.push({ id: itemId, quantity: 1 })
+            }
+            else {
+                let index = cartItems.findIndex(item => item.id == itemId)
+                cartItems[index].quantity += 1
+            }
+            console.log(cartItems)
             const itemDetails = {
                 cart: cartItems
             }
@@ -135,7 +161,6 @@
             xhr.open('POST', '/buyer/addToCart', true)
             xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
             xhr.send(JSON.stringify(itemDetails));
-
         }
 
     </script>

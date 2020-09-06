@@ -56,20 +56,20 @@
         cartItems = [] //array of objects of cart items
         function getCartItems(data) {
             for (let i = 0; i < data.length; i++) {
-                fetch(`/buyer/item/${data[i]}`)
+                fetch(`/buyer/item/${data[i].id}`)
                     .then(response => response.json())
                     .then(content => {
                         cartItems.push(content[0])
                         if (cartItems.length === data.length) {
-                            displayCartItems(cartItems)
+                            displayCartItems(cartItems, data)
                         }
                     })
             }
         }
         let titles = ['name', 'description', 'price', 'quantity']
-        let titleNames = ['Name', 'Description', 'Price', 'Quantity']
+        let titleNames = ['Name', 'Description', 'Price', 'Quantity available', 'Quantity needed']
 
-        function displayCartItems(data) {
+        function displayCartItems(data, cart) {
             let itemsDiv = document.querySelector('.items')
             for (let i = 0; i < data.length; i++) {
                 let itemDiv = document.createElement('div')
@@ -82,15 +82,45 @@
                 itemDiv.appendChild(imgDiv)
                 let contentDiv = document.createElement('div')
                 contentDiv.className = 'item-content'
+                let quantityAvailable = -1;
+                let lessMessage = false;
                 for (let j = 0; j < titles.length; j++) {
                     let p = document.createElement('p')
                     let title = titles[j]
+                    if (title === 'quantity') {
+                        if (data[i][title] === 0) {
+                            quantityAvailable = 0
+                        }
+                        else if (data[i][title] < cart[i].quantity) {
+                            quantityAvailable = data[i][title]
+                            lessMessage = true
+                        }
+                        else {
+                            quantityAvailable = cart[i].quantity
+                        }
+                    }
                     p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
                     contentDiv.appendChild(p)
                 }
+                let p = document.createElement('p')
+                p.innerHTML = `<b>Quantity added to Cart</b> : ${cart[i].quantity}`
+                contentDiv.appendChild(p)
                 let button = document.createElement('button')
                 button.id = `item-${data[i].id}`
-                button.innerHTML = 'ORDER NOW'
+                if (quantityAvailable) {
+                    button.innerHTML = 'ORDER NOW'
+                    if (lessMessage) {
+                        let p1 = document.createElement('p')
+                        p1.innerHTML = '*Order will be taken for quantity available*'
+                        contentDiv.appendChild(p1)
+                    }
+                    button.onclick = () => {
+                        orderItem(data[i].id, quantityAvailable)
+                    }
+                }
+                else {
+                    button.innerHTML = 'NO STOCK'
+                }
                 contentDiv.appendChild(button)
                 itemDiv.appendChild(contentDiv)
                 itemsDiv.appendChild(itemDiv)
@@ -98,6 +128,9 @@
             }
         }
         getCart()
+        function orderItem(itemId, quantity) {
+            console.log(itemId, quantity)
+        }
     </script>
 </body>
 
