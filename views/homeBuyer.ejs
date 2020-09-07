@@ -5,39 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <style>
-        .items {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .item {
-            display: flex;
-            width: 100%;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid black;
-        }
-
-        .item>div {
-            padding: 10px;
-        }
-
-        .item-image {
-            border: 1px solid violet;
-            width: 30%;
-            height: 300px;
-            overflow: hidden;
-        }
-
-        .item-content {
-            border: 1px solid blue;
-            width: 70%;
-        }
-    </style>
+    <link href="/css/shoppingCard.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
@@ -54,6 +22,20 @@
     <p>Shop Items:</p>
     <div class="items">
     </div>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body" id="order-confirm-message">
+
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+
+    </div>
+
     <script>
         function getShoppingItems() {
             fetch('/buyer/items')
@@ -140,6 +122,8 @@
             }
         }
         getOrders()
+
+        //display shopping items
         function displayShoppingItems(data) {
             let itemsDiv = document.querySelector('.items')
             for (let i = 0; i < data.length; i++) {
@@ -172,7 +156,8 @@
                     orderButton.innerHTML = 'ORDER NOW'
                     orderButton.id = `order-item-${data[i].id}`
                     orderButton.onclick = () => {
-                        orderItem(data[i].id)
+                        showModal(data[i].id, data[i].name)
+                        //orderItem(data[i].id)
                     }
                 }
                 contentDiv.appendChild(orderButton)
@@ -190,10 +175,32 @@
             }
         }
         getShoppingItems()
+        var modal = document.getElementById("myModal");
+        var span = document.getElementsByClassName("close")[0];
+        span.onclick = () => {
+            modal.style.display = 'none'
+        }
+        function showModal(id, name) {
+            let message = `Are you sure want to order '${name}' with Order Id : ${id} ?`
+            modal.style.display = "block"
+            let messageElement = document.getElementById('order-confirm-message')
+            messageElement.innerHTML = message
+            let orderConfirmButton = document.createElement('button')
+            orderConfirmButton.style.display = 'block'
+            orderConfirmButton.style.margin = '10px'
+            orderConfirmButton.innerHTML = 'YES'
+            orderConfirmButton.onclick = () => {
+                orderItem(id)
+                modal.style.display = 'none';
+            }
+            messageElement.appendChild(orderConfirmButton)
+        }
+
         function orderItem(itemId) {
             //add order confirmation or 'item ordered message though alerts!'
-            document.getElementById(`order-item-${itemId}`).innerHTML = 'ORDERED'
-            //send id to server to be added to database
+            alert('Item Successfully ordered!')
+            //document.getElementById(`order-item-${itemId}`).innerHTML = 'ORDERED'
+            //send id to server to be added in database
             const itemDetails = {
                 id: itemId,
                 quantity: 1

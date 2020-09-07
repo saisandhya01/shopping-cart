@@ -5,39 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Cart</title>
-    <style>
-        .items {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .item {
-            display: flex;
-            width: 100%;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid black;
-        }
-
-        .item>div {
-            padding: 10px;
-        }
-
-        .item-image {
-            border: 1px solid violet;
-            width: 30%;
-            height: 300px;
-            overflow: hidden;
-        }
-
-        .item-content {
-            border: 1px solid blue;
-            width: 70%;
-        }
-    </style>
+    <link href="/css/shoppingCard.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
@@ -112,7 +80,7 @@
                     button.innerHTML = 'ORDER NOW'
                     if (lessMessage) {
                         let p1 = document.createElement('p')
-                        p1.innerHTML = '*Order will be taken for quantity available*'
+                        p1.innerHTML = '*Order will be taken only for the quantity available*'
                         contentDiv.appendChild(p1)
                     }
                     button.onclick = () => {
