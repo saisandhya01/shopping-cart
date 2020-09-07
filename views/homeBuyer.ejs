@@ -49,7 +49,7 @@
     <a href="/buyer/orders"><button type="button">YOUR ORDERS</button></a>
     <p>Your recent purchases:</p>
     <div class="purchases">
-
+        <p>No orders placed yet.</p>
     </div>
     <p>Shop Items:</p>
     <div class="items">
@@ -59,6 +59,7 @@
             fetch('/buyer/items')
                 .then(response => response.json())
                 .then(data => {
+                    data.sort((a, b) => (a.name > b.name) ? 1 : -1)
                     displayShoppingItems(data);
                 })
         }
@@ -74,6 +75,71 @@
                 })
         }
         getCartItems()
+
+        ///for recent purchases
+        function getOrders() {
+            fetch('/buyer/order/list')
+                .then(response => response.json())
+                .then(data => {
+                    getDetailsOfOrder(data)
+
+                })
+        }
+        let orderItems = []
+        function getDetailsOfOrder(data) {
+            for (let i = 0; i < data.length; i++) {
+                fetch(`/buyer/item/${data[i].id}`)
+                    .then(response => response.json())
+                    .then(content => {
+                        data[i]['name'] = content[0]['name']
+                        data[i]['price'] = content[0]['price']
+                        data[i]['image'] = content[0]['image']
+                        orderItems.push(data[i])
+                        if (data.length === orderItems.length) {
+                            sortOrderItemsByDate(orderItems)
+                        }
+                    })
+            }
+
+        }
+        function sortOrderItemsByDate(orderItems) {
+            orderItems.sort(function (a, b) {
+                let keyA = new Date(a.date)
+                let keyB = new Date(b.date)
+                if (keyA > keyB) return -1;
+                if (keyA < keyB) return 1;
+                return 0;
+            })
+            //console.log(orderItems)
+            displayOrderItems(orderItems)
+        }
+        let titles2 = ['name', 'price', 'quantity', 'date']
+        let titleNames2 = ['Name of the Product', 'Price of the Product', 'Quantity', 'Date Purchased']
+        function displayOrderItems(data) {
+            let itemsDiv = document.querySelector('.purchases')
+            itemsDiv.innerHTML = ""
+            for (let i = 0; i < 2; i++) {
+                let itemDiv = document.createElement('div')
+                itemDiv.className = 'item'
+                let imgDiv = document.createElement('div')
+                let img = document.createElement('img')
+                img.className = 'item-image'
+                img.src = `/uploads/${data[i].image}`
+                imgDiv.appendChild(img)
+                itemDiv.appendChild(imgDiv)
+                let contentDiv = document.createElement('div')
+                contentDiv.className = 'item-content'
+                for (let j = 0; j < titles2.length; j++) {
+                    let p = document.createElement('p')
+                    let title = titles2[j]
+                    p.innerHTML = `<b>${titleNames2[j]}</b> : ${data[i][title]}`
+                    contentDiv.appendChild(p)
+                }
+                itemDiv.appendChild(contentDiv)
+                itemsDiv.appendChild(itemDiv)
+            }
+        }
+        getOrders()
         function displayShoppingItems(data) {
             let itemsDiv = document.querySelector('.items')
             for (let i = 0; i < data.length; i++) {

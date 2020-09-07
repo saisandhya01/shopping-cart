@@ -65,11 +65,22 @@
                         data[i]['image'] = content[0]['image']
                         orderItems.push(data[i])
                         if (data.length === orderItems.length) {
-                            displayOrderItems(orderItems)
+                            sortOrderItemsByDate(orderItems)
                         }
                     })
             }
 
+        }
+        function sortOrderItemsByDate(orderItems) {
+            orderItems.sort(function (a, b) {
+                let keyA = new Date(a.date)
+                let keyB = new Date(b.date)
+                if (keyA > keyB) return -1;
+                if (keyA < keyB) return 1;
+                return 0;
+            })
+            //console.log(orderItems)
+            displayOrderItems(orderItems)
         }
         let titles = ['name', 'price', 'quantity', 'date']
         let titleNames = ['Name of the Product', 'Price of the Product', 'Quantity', 'Date Purchased']
