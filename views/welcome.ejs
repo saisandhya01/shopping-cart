@@ -5,11 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome</title>
+    <style>
+        .main {
+            border: 1px none black;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        button {
+            margin: 10px;
+        }
+    </style>
 </head>
 
 <body>
-    <a href='/login'>Login</a>
-    <a href='/register'>Register</a>
+    <div class="main">
+        <h3>Welcome to Shoppie! Create an account or login.</h3>
+        <a href='/register'><button>REGISTER</button></a>
+        <a href='/login'><button>LOGIN</button></a>
+    </div>
 </body>
 
 </html>

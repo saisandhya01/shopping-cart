@@ -62,7 +62,11 @@ function checkAuthenticated(req, res, next) {
 }
 function checkNotAuthenticated(req, res, next) {
   if (req.session.user) {
-    res.redirect("/home");
+    if (req.session.user.usertype === "buyer") {
+      res.redirect("/buyer/home");
+    } else {
+      res.redirect("/seller/home");
+    }
   } else {
     next();
   }
@@ -219,7 +223,9 @@ app.post("/login", checkNotAuthenticated, async (req, res) => {
     res.redirect("/login");
   }
 });
-
+app.get("/name", checkAuthenticated, (req, res) => {
+  res.send(req.session.user.username);
+});
 app.post("/logout", checkAuthenticated, (req, res) => {
   req.session.destroy((err) => {
     if (err) {
@@ -246,6 +252,7 @@ app.post("/addItem", checkAuthenticated, (req, res) => {
     quantity: req.body.quantity,
     price: req.body.price,
     soldBy: req.session.user.username,
+    image: "amazon.png",
   };
   const sql = "INSERT INTO items SET ?";
   db.query(sql, item, (err, result) => {

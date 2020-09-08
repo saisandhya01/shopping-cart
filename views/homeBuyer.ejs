@@ -6,10 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link href="/css/shoppingCard.css" rel="stylesheet" type="text/css">
+    <style>
+        .search-bar {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .push-right {
+            margin-left: auto;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>This is home page for buyer</h1>
+    <h2>Welcome <span id="name">Shoppie</span></h2>
     <form action="/logout" method="POST">
         <button type="submit" id="log-out">Log Out</button>
     </form>
@@ -19,7 +29,12 @@
     <div class="purchases">
         <p>No orders placed yet.</p>
     </div>
-    <p>Shop Items:</p>
+    <div class="search-bar">
+        <p>Shop Items:</p>
+        <input type="text" id="search-name" class="push-right" placeholder="Search for any item">
+        <button type="button" id="search-button">Search</button>
+    </div>
+
     <div class="items">
     </div>
     <div id="myModal" class="modal">
@@ -37,11 +52,13 @@
     </div>
 
     <script>
+        let sortedItemsByName = []
         function getShoppingItems() {
             fetch('/buyer/items')
                 .then(response => response.json())
                 .then(data => {
                     data.sort((a, b) => (a.name > b.name) ? 1 : -1)
+                    sortedItemsByName = data
                     displayShoppingItems(data);
                 })
         }
@@ -126,6 +143,7 @@
         //display shopping items
         function displayShoppingItems(data) {
             let itemsDiv = document.querySelector('.items')
+            itemsDiv.innerHTML = ""
             for (let i = 0; i < data.length; i++) {
                 let itemDiv = document.createElement('div')
                 itemDiv.className = 'item'
@@ -190,8 +208,8 @@
             orderConfirmButton.style.margin = '10px'
             orderConfirmButton.innerHTML = 'YES'
             orderConfirmButton.onclick = () => {
-                orderItem(id)
                 modal.style.display = 'none';
+                orderItem(id)
             }
             messageElement.appendChild(orderConfirmButton)
         }
@@ -234,6 +252,39 @@
             xhr.open('POST', '/buyer/addToCart', true)
             xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
             xhr.send(JSON.stringify(itemDetails));
+        }
+        let searchButton = document.getElementById('search-button');
+        searchButton.addEventListener('click', async () => {
+            let searchInput = document.getElementById('search-name').value;
+            let itemsDiv = document.querySelector('.items')
+            if (searchInput !== "") {
+                const index = await binarySearch(sortedItemsByName, searchInput.toLowerCase());
+                if (index === -1) {
+                    itemsDiv.innerHTML = `<p>Match for <b>${searchInput}</b> is not found :(</p>`;
+                }
+                else {
+                    displayShoppingItems([sortedItemsByName[index]])
+                }
+            }
+        })
+        function binarySearch(arr, val) {
+            let start = 0;
+            let end = arr.length - 1;
+
+            while (start <= end) {
+                let mid = Math.floor((start + end) / 2);
+
+                if (arr[mid]['name'].toLowerCase() === val) {
+                    return mid;
+                }
+
+                if (val < arr[mid]['name'].toLowerCase()) {
+                    end = mid - 1;
+                } else {
+                    start = mid + 1;
+                }
+            }
+            return -1;
         }
 
     </script>

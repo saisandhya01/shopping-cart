@@ -6,19 +6,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link href="/css/shoppingCard.css" rel="stylesheet" type="text/css">
+    <style>
+        .heading {
+            display: flex;
+            margin-top: 20px;
+            justify-content: space-between;
+        }
+
+        .heading>a {
+            margin-right: 12px;
+        }
+
+        .push-right {
+            margin-left: auto;
+        }
+
+        h3 {
+            text-align: center;
+            margin-top: 23px;
+        }
+
+        .web-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>This is home page for seller</h1>
-    <form action="/logout" method="POST">
-        <button type="submit" id="log-out">Log Out</button>
-    </form>
-    <a href="/addItem"><button type="button">Add an item</button></a>
-    <a href="/seller/orders"><button>Orders by customers</button></a>
+    <div class="heading">
+        <h2>Welcome <span id="name">Shoppie</span></h2>
+        <a href="/addItem" class="push-right"><button type="button" class="web-button">Add an item</button></a>
+        <a href="/seller/orders"><button class="web-button">Orders by customers</button></a>
+        <form action="/logout" method="POST">
+            <button type="submit" id="log-out" class="web-button">Log Out</button>
+        </form>
+    </div>
+    <h3>Your Items for sale</h3>
     <div class="items">
 
     </div>
     <script>
+        function getName() {
+            fetch('/name')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('name').innerHTML = data
+                })
+        }
+        getName()
         function getItemsOfSeller() {
             fetch('/seller/items')
                 .then(response => response.json())
