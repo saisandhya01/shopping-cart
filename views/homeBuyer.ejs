@@ -216,7 +216,7 @@
 
         function orderItem(itemId) {
             //add order confirmation or 'item ordered message though alerts!'
-            alert('Item Successfully ordered!')
+            //alert('Item Successfully ordered!')
             //document.getElementById(`order-item-${itemId}`).innerHTML = 'ORDERED'
             //send id to server to be added in database
             const itemDetails = {
@@ -227,7 +227,7 @@
             xhr.open('POST', `/buyer/order`, true)
             xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
             xhr.send(JSON.stringify(itemDetails));
-
+            location.reload();
 
         }
         function addCartItem(itemId) {

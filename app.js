@@ -355,6 +355,9 @@ app.get("/seller/order/list", checkAuthenticated, (req, res) => {
     }
   });
 });
+app.get("/seller/graph", checkAuthenticated, (req, res) => {
+  res.render("sellerGraph");
+});
 app.get("/buyer/items", checkAuthenticated, (req, res) => {
   const sql = "SELECT * FROM items";
   db.query(sql, (err, result) => {

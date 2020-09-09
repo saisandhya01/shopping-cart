@@ -107,7 +107,7 @@
             xhr.open('POST', '/buyer/addToCart', true)
             xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
             xhr.send(JSON.stringify(itemDetails));
-
+            location.reload()
         }
         function orderItem(itemId, quantity) {
             document.getElementById(`item-${itemId}`).innerHTML = 'Ordered'
