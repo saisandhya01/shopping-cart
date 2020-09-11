@@ -6,10 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link href="/css/shoppingCard.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <style>
         .heading {
             display: flex;
             margin-top: 20px;
+            width: 100%;
             justify-content: space-between;
         }
 
@@ -30,6 +35,7 @@
             background: none;
             border: none;
             cursor: pointer;
+            margin-right: 5px;
         }
     </style>
 </head>
@@ -37,10 +43,16 @@
 <body>
     <div class="heading">
         <h2>Welcome <span id="name">Shoppie</span></h2>
-        <a href="/addItem" class="push-right"><button type="button" class="web-button">Add an item</button></a>
-        <a href="/seller/orders"><button class="web-button">Orders by customers</button></a>
+        <a href="/seller/orders" class="push-right"><button class="web-button">Orders by customers <i
+                    class="fa fa-money" aria-hidden="true"></i>
+            </button></a>
+        <a href="/addItem"><button type="button" class="web-button">Add an item<i class="fa fa-cart-plus"
+                    aria-hidden="true"></i>
+            </button></a>
         <form action="/logout" method="POST">
-            <button type="submit" id="log-out" class="web-button">Log Out</button>
+            <button type="submit" id="log-out" class="web-button">Log Out <i class="fa fa-sign-out"
+                    aria-hidden="true"></i>
+            </button>
         </form>
     </div>
     <h3>Your Items for sale</h3>
@@ -60,14 +72,20 @@
             fetch('/seller/items')
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
-                    displayItems(data);
+                    console.log(data)
+                    if (data.length === 0) {
+                        document.querySelector('.items').innerHTML = `<p style='text-align:center;margin-top:8px;'>No items added yet.</p>`
+                    }
+                    else {
+                        displayItems(data)
+                    }
                 })
         }
         let titles = ['name', 'description', 'price', 'quantity']
         let titleNames = ['Name', 'Description', 'Price', 'Quantity']
         function displayItems(data) {
             let itemsDiv = document.querySelector('.items')
+            itemsDiv.innerHTML = ""
             for (let i = 0; i < data.length; i++) {
                 let itemDiv = document.createElement('div')
                 itemDiv.className = 'item'
@@ -85,12 +103,18 @@
                 for (let j = 0; j < titles.length; j++) {
                     let p = document.createElement('p')
                     let title = titles[j]
-                    p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
+                    if (title === 'price') {
+                        p.innerHTML = `<b>${titleNames[j]}</b> : Rs ${data[i][title]}`
+                    }
+                    else {
+                        p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
+                    }
                     contentDiv.appendChild(p)
                 }
                 let updateButton = document.createElement('a')
-                updateButton.setAttribute('href', `/seller/update/${data[i].id}`)
                 let button = document.createElement('button')
+                updateButton.setAttribute('href', `/seller/update/${data[i].id}`)
+                button.className = 'btn btn-primary'
                 button.innerHTML = 'UPDATE ITEM'
                 updateButton.appendChild(button)
                 contentDiv.appendChild(updateButton)

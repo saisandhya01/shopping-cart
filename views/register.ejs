@@ -10,27 +10,8 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
         integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-
+    <link href="/css/register.css" rel="stylesheet" type="text/css" />
     <title>Register</title>
-    <style>
-        .main {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            height: 100vh;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .register-form {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid black;
-            padding: 10px;
-        }
-    </style>
 </head>
 
 <body>
@@ -40,7 +21,7 @@
             <% if(messages.exist) { %>
             <%= messages.exist %>
             <% } %>
-            <form class="form" method="post" action="/register">
+            <form class="form-register" method="post" action="/register">
                 <div class="form-group">
                     <label for="email" class="control-label">Email:</label>
                     <div class="input-group">
@@ -77,8 +58,9 @@
                     <input type="radio" name="usertype" id="seller" value="seller">
                     <label for="buyer">Seller</label>
                 </div>
-                <button type="submit" class="btn btn-info">Register</button>
+                <button type="submit" class="btn btn-info" id="register-button">Register</button>
             </form>
+
         </div>
     </div>
 

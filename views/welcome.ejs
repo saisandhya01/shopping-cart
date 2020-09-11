@@ -4,11 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <title>Welcome</title>
     <style>
         .main {
             border: 1px none black;
             margin: auto;
+            margin-top: 30px;
             display: flex;
             flex-direction: column;
             justify-content: space-around;
@@ -24,8 +29,10 @@
 <body>
     <div class="main">
         <h3>Welcome to Shoppie! Create an account or login.</h3>
-        <a href='/register'><button>REGISTER</button></a>
-        <a href='/login'><button>LOGIN</button></a>
+        <a href='/register'><button class="btn btn-primary">REGISTER <i class="fa fa-user-plus"
+                    aria-hidden="true"></i></button></a>
+        <a href='/login'><button class="btn btn-primary">LOGIN <i class="fa fa-sign-in" aria-hidden="true"></i>
+            </button></a>
     </div>
 </body>
 

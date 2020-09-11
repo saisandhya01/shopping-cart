@@ -29,8 +29,7 @@
             let lastWeekPurchased = 0
             let otherWeekPurchased = 0
             if (data.length === 0) {
-                let body = document.querySelector('body')
-                body.innerHTML = 'No purchases made by customers yet!'
+                displayChart(0, 0)
             }
             else {
                 for (let i = 0; i < data.length; i++) {

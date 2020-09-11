@@ -5,37 +5,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
-    <link href="/css/shoppingCard.css" rel="stylesheet" type="text/css">
+    <link href="/css/shoppingCard2.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <style>
         .search-bar {
             display: flex;
-            margin-top: 20px;
+            margin-top: 50px;
+            padding: 10px;
+        }
+
+        .main {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        a>button,
+        #log-out {
+            background: none;
+            border: none;
+            margin: 10px;
         }
 
         .push-right {
             margin-left: auto;
         }
+
+        #title {
+            text-align: center;
+        }
+
+        #search-button {
+            padding: 5px;
+        }
+
+        h3 {
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
-    <h2>Welcome <span id="name">Shoppie</span></h2>
-    <form action="/logout" method="POST">
-        <button type="submit" id="log-out">Log Out</button>
-    </form>
-    <a href="/buyer/showCart"><button type="button">CART</button></a>
-    <a href="/buyer/orders"><button type="button">YOUR ORDERS</button></a>
-    <p>Your recent purchases:</p>
+    <div class="main">
+        <h2>Welcome <span id="name">Shoppie</span></h2>
+        <a href="/buyer/showCart" class="push-right"><button type="button">CART <i class="fa fa-shopping-cart"
+                    aria-hidden="true"></i>
+            </button></a>
+        <a href="/buyer/orders"><button type="button">YOUR ORDERS <i class="fa fa-credit-card-alt"
+                    aria-hidden="true"></i>
+            </button></a>
+        <form action="/logout" method="POST">
+            <button type="submit" id="log-out">Log Out <i class="fa fa-sign-out" aria-hidden="true"></i>
+            </button>
+        </form>
+    </div>
+    <h3 style="margin-top:50px;">Your recent purchases:</h3>
     <div class="purchases">
-        <p>No orders placed yet.</p>
+        <p style='text-align:center;margin-top:10px'>No orders placed yet.</p>
     </div>
     <div class="search-bar">
-        <p>Shop Items:</p>
+        <h3 id="title">Shop Items:</h3>
         <input type="text" id="search-name" class="push-right" placeholder="Search for any item">
-        <button type="button" id="search-button">Search</button>
+        <button type="button" id="search-button"><i class="fa fa-search" aria-hidden="true"></i>
+        </button>
     </div>
 
     <div class="items">
+        <p style='margin-top:13px'>We are sorry,no shopping items added.</p>
     </div>
     <div id="myModal" class="modal">
         <div class="modal-content">
@@ -53,13 +92,23 @@
 
     <script>
         let sortedItemsByName = []
+        function getName() {
+            fetch('/name')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('name').innerHTML = data
+                })
+        }
+        getName()
         function getShoppingItems() {
             fetch('/buyer/items')
                 .then(response => response.json())
                 .then(data => {
                     data.sort((a, b) => (a.name > b.name) ? 1 : -1)
                     sortedItemsByName = data
-                    displayShoppingItems(data);
+                    if (data.length !== 0) {
+                        displayShoppingItems(data)
+                    }
                 })
         }
         let titles = ['name', 'description', 'price', 'quantity', 'soldBy']
@@ -80,7 +129,9 @@
             fetch('/buyer/order/list')
                 .then(response => response.json())
                 .then(data => {
-                    getDetailsOfOrder(data)
+                    if (data.length !== 0) {
+                        getDetailsOfOrder(data)
+                    }
 
                 })
         }
@@ -91,7 +142,6 @@
                     .then(response => response.json())
                     .then(content => {
                         data[i]['name'] = content[0]['name']
-                        data[i]['price'] = content[0]['price']
                         data[i]['image'] = content[0]['image']
                         orderItems.push(data[i])
                         if (data.length === orderItems.length) {
@@ -131,7 +181,12 @@
                 for (let j = 0; j < titles2.length; j++) {
                     let p = document.createElement('p')
                     let title = titles2[j]
-                    p.innerHTML = `<b>${titleNames2[j]}</b> : ${data[i][title]}`
+                    if (title === 'price') {
+                        p.innerHTML = `<b>${titleNames2[j]}</b> : Rs ${data[i][title]}`
+                    }
+                    else {
+                        p.innerHTML = `<b>${titleNames2[j]}</b> : ${data[i][title]}`
+                    }
                     contentDiv.appendChild(p)
                 }
                 itemDiv.appendChild(contentDiv)
@@ -162,24 +217,32 @@
                     if (title === 'quantity' && data[i][title] === 0) {
                         quantityIsZero = true
                     }
-                    p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
+                    if (title === 'price') {
+                        p.innerHTML = `<b>${titleNames[j]}</b> : Rs ${data[i][title]}`
+                    }
+                    else {
+                        p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
+                    }
                     contentDiv.appendChild(p)
                 }
                 //order Now and addToCart button
                 let orderButton = document.createElement('button')
                 if (quantityIsZero) {
+                    orderButton.className = 'btn btn-outline-primary'
                     orderButton.innerHTML = 'NO STOCK'
                 }
                 else {
                     orderButton.innerHTML = 'ORDER NOW'
+                    orderButton.className = 'btn btn-outline-primary'
                     orderButton.id = `order-item-${data[i].id}`
                     orderButton.onclick = () => {
-                        showModal(data[i].id, data[i].name)
+                        showModal(data[i].id, data[i].name, data[i].price)
                         //orderItem(data[i].id)
                     }
                 }
                 contentDiv.appendChild(orderButton)
                 let addToCart = document.createElement('button')
+                addToCart.className = 'btn btn-outline-primary'
                 addToCart.id = `add-cart-${data[i].id}`
                 addToCart.innerHTML = 'ADD TO CART'
                 addToCart.onclick = () => {
@@ -198,30 +261,31 @@
         span.onclick = () => {
             modal.style.display = 'none'
         }
-        function showModal(id, name) {
-            let message = `Are you sure want to order '${name}' with Order Id : ${id} ?`
+        function showModal(id, name, price) {
+            let message = `Are you sure you want to order '${name}' with Order Id : ${id} ?`
             modal.style.display = "block"
             let messageElement = document.getElementById('order-confirm-message')
             messageElement.innerHTML = message
             let orderConfirmButton = document.createElement('button')
-            orderConfirmButton.style.display = 'block'
+            orderConfirmButton.className = 'btn btn-success'
             orderConfirmButton.style.margin = '10px'
             orderConfirmButton.innerHTML = 'YES'
             orderConfirmButton.onclick = () => {
                 modal.style.display = 'none';
-                orderItem(id)
+                orderItem(id, price)
             }
             messageElement.appendChild(orderConfirmButton)
         }
 
-        function orderItem(itemId) {
+        function orderItem(itemId, price) {
             //add order confirmation or 'item ordered message though alerts!'
             //alert('Item Successfully ordered!')
             //document.getElementById(`order-item-${itemId}`).innerHTML = 'ORDERED'
             //send id to server to be added in database
             const itemDetails = {
                 id: itemId,
-                quantity: 1
+                quantity: 1,
+                price: price
             }
             var xhr = new window.XMLHttpRequest();
             xhr.open('POST', `/buyer/order`, true)
@@ -260,7 +324,7 @@
             if (searchInput !== "") {
                 const index = await binarySearch(sortedItemsByName, searchInput.toLowerCase());
                 if (index === -1) {
-                    itemsDiv.innerHTML = `<p>Match for <b>${searchInput}</b> is not found :(</p>`;
+                    itemsDiv.innerHTML = `<p style="margin-top:13px;">Match for <b>${searchInput}</b> is not found :(</p>`;
                 }
                 else {
                     displayShoppingItems([sortedItemsByName[index]])

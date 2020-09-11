@@ -5,20 +5,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Cart</title>
-    <link href="/css/shoppingCard.css" rel="stylesheet" type="text/css">
+    <link href="/css/shoppingCard2.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 </head>
 
 <body>
-    <h3>This is your cart</h3>
+    <h3 style="text-align: center;">Your Cart</h3>
     <div class="items">
-
+        <p style='text-align:center;margin-top:10px'>No items in your cart</p>
     </div>
     <script>
         function getCart() {
             fetch('/buyer/cart')
                 .then(response => response.json())
                 .then(data => {
-                    getCartItems(data)
+                    if (data.length !== 0) {
+                        getCartItems(data)
+                    }
                 });
         }
         cartItems = [] //array of objects of cart items
@@ -34,8 +38,8 @@
                     })
             }
         }
-        let titles = ['name', 'description', 'price', 'quantity']
-        let titleNames = ['Name', 'Description', 'Price', 'Quantity available', 'Quantity needed']
+        let titles = ['name', 'description', 'quantity', 'price']
+        let titleNames = ['Name', 'Description', 'Quantity available', 'Total Price']
 
         function displayCartItems(data, cart) {
             let itemsDiv = document.querySelector('.items')
@@ -68,7 +72,12 @@
                             quantityAvailable = cart[i].quantity
                         }
                     }
-                    p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
+                    if (title === 'price') {
+                        p.innerHTML = `<b>${titleNames[j]}</b> : Rs ${data[i][title] * cart[i].quantity}`
+                    }
+                    else {
+                        p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
+                    }
                     contentDiv.appendChild(p)
                 }
                 let p = document.createElement('p')
@@ -84,7 +93,7 @@
                         contentDiv.appendChild(p1)
                     }
                     button.onclick = () => {
-                        orderItem(data[i].id, quantityAvailable)
+                        orderItem(data[i].id, quantityAvailable, data[i].price * cart[i].quantity)
                     }
                 }
                 else {
@@ -109,11 +118,12 @@
             xhr.send(JSON.stringify(itemDetails));
             location.reload()
         }
-        function orderItem(itemId, quantity) {
+        function orderItem(itemId, quantity, price) {
             document.getElementById(`item-${itemId}`).innerHTML = 'Ordered'
             const itemDetails = {
                 id: itemId,
-                quantity: quantity
+                quantity: quantity,
+                price: price
             }
             var xhr = new window.XMLHttpRequest();
             xhr.open('POST', `/buyer/order`, true)

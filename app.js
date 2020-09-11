@@ -130,7 +130,7 @@ function checkFileType(file, cb) {
 const schema = Joi.object({
   email: Joi.string().email().required(),
   username: Joi.string().alphanum().min(3).required(),
-  password: Joi.string().min(4).required(),
+  password: Joi.string().min(5).required(),
 });
 //routes
 app.get("/", checkNotAuthenticated, (req, res) => {
@@ -411,8 +411,7 @@ app.get("/buyer/order/list", checkAuthenticated, (req, res) => {
 });
 
 app.post("/buyer/order", checkAuthenticated, (req, res) => {
-  const id = req.body.id;
-  const quantity = req.body.quantity;
+  const { id, quantity, price } = req.body;
   //reduce the quantity of the item by 1
   const sql = `UPDATE items SET quantity=quantity-${quantity} WHERE id=${id}`;
   db.query(sql, (err, result) => {
@@ -422,6 +421,7 @@ app.post("/buyer/order", checkAuthenticated, (req, res) => {
   const object = {
     id: id,
     quantity: quantity,
+    price: price,
     date: new Date(),
     buyerName: req.session.user.username,
     buyerEmail: req.session.user.email,

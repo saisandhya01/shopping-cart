@@ -1,0 +1,40 @@
+body {
+  background-color: black;
+}
+.main {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.register-form,
+.login-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid black;
+  background-color: white;
+  width: 430px;
+  padding: 10px;
+}
+.form-register,
+.form-login {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+@media screen and (max-width: 437px) {
+  .register-form,
+  .login-form {
+    width: 95%;
+  }
+}
+.new-user-register {
+  width: 100%;
+  margin-top: 12px;
+}

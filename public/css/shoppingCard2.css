@@ -8,13 +8,17 @@
   flex-direction: column;
   justify-content: space-around;
 }
-.items > div {
+.items > div,
+.purchases > div {
   margin: 10px;
 }
 .item {
   display: flex;
   border: 1px solid black;
   height: 400px;
+}
+button {
+  display: inline;
 }
 .item-image {
   height: 100%;
@@ -32,10 +36,15 @@ img {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  align-items: center;
+  padding: 10px;
 }
 .item-content > * {
   padding: 10px;
+}
+@media screen and (max-width: 490px) {
+  .item {
+    height: 430px;
+  }
 }
 @media screen and (max-width: 560px) {
   .item-image {
@@ -65,7 +74,6 @@ img {
   background-color: #fefefe;
   margin: auto;
   padding: 0;
-  border: 1px solid #888;
   width: 80%;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   animation-name: animatetop;

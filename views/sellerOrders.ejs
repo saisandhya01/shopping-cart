@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orders made</title>
-    <link href="/css/shoppingCard.css" rel="stylesheet" type="text/css">
+    <link href="/css/shoppingCard2.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <style>
         h3 {
             text-align: center;
@@ -33,7 +35,13 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log(data)
-                    getDetailsOfOrder(data)
+                    if (data.length === 0) {
+                        document.querySelector('.items').innerHTML = `<p style='text-align:center;margin-top:10px;'>No orders made by customers yet.</p>`
+                    }
+                    else {
+                        getDetailsOfOrder(data)
+                    }
+
                 })
         }
         let orderItems = []
@@ -43,7 +51,6 @@
                     .then(response => response.json())
                     .then(content => {
                         data[i]['name'] = content[0]['name']
-                        data[i]['price'] = content[0]['price']
                         data[i]['image'] = content[0]['image']
                         orderItems.push(data[i])
                         if (data.length === orderItems.length) {
@@ -57,6 +64,7 @@
         let titleNames = ['Name of the Product', 'Customer Name', 'Customer Email', 'Price of the Product', 'Quantity', 'Date Purchased']
         function displayOrderItems(data) {
             let itemsDiv = document.querySelector('.items')
+            itemsDiv.innerHTML = ""
             for (let i = 0; i < data.length; i++) {
                 let itemDiv = document.createElement('div')
                 itemDiv.className = 'item'
@@ -71,7 +79,12 @@
                 for (let j = 0; j < titles.length; j++) {
                     let p = document.createElement('p')
                     let title = titles[j]
-                    p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
+                    if (title === 'price') {
+                        p.innerHTML = `<b>${titleNames[j]}</b> : Rs ${data[i][title]}`
+                    }
+                    else {
+                        p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
+                    }
                     contentDiv.appendChild(p)
                 }
                 itemDiv.appendChild(contentDiv)
