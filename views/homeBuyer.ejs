@@ -184,6 +184,10 @@
                     if (title === 'price') {
                         p.innerHTML = `<b>${titleNames2[j]}</b> : Rs ${data[i][title]}`
                     }
+                    else if (title === 'date') {
+                        let dt = new Date(data[i][title])
+                        p.innerHTML = `<b>${titleNames2[j]}</b> : ${dt.toString()}`
+                    }
                     else {
                         p.innerHTML = `<b>${titleNames2[j]}</b> : ${data[i][title]}`
                     }

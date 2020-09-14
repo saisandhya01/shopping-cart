@@ -8,6 +8,11 @@
     <link href="/css/shoppingCard2.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
         integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <style>
+        .item {
+            height: 430px;
+        }
+    </style>
 </head>
 
 <body>
@@ -99,7 +104,13 @@
                 else {
                     button.innerHTML = 'NO STOCK'
                 }
+                let removeButton = document.createElement('button')
+                removeButton.innerHTML = 'REMOVE FROM CART'
+                removeButton.onclick = () => {
+                    removeItemFromCart(data[i].id)
+                }
                 contentDiv.appendChild(button)
+                contentDiv.appendChild(removeButton)
                 itemDiv.appendChild(contentDiv)
                 itemsDiv.appendChild(itemDiv)
 
