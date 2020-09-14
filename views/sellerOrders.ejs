@@ -82,9 +82,14 @@
                     if (title === 'price') {
                         p.innerHTML = `<b>${titleNames[j]}</b> : Rs ${data[i][title]}`
                     }
+                    else if (title === 'date') {
+                        let dt = new Date(data[i][title])
+                        p.innerHTML = `<b>${titleNames[j]}</b> : ${dt.toString()}`
+                    }
                     else {
                         p.innerHTML = `<b>${titleNames[j]}</b> : ${data[i][title]}`
                     }
+
                     contentDiv.appendChild(p)
                 }
                 itemDiv.appendChild(contentDiv)
